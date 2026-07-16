@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج وفاحص سيرفرات الماك الاحترافي</title>
+    <title>مستخرج وفاحص سيرفرات الماك الذكي</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -30,14 +30,15 @@
         h2 { text-align: center; color: #3b82f6; margin-top: 0; }
         textarea {
             width: 100%;
-            height: 140px;
+            height: 200px;
             background: #030712;
-            color: #60a5fa;
+            color: #10b981;
             border: 1px solid var(--border);
             padding: 12px;
             border-radius: 8px;
             font-family: monospace;
             box-sizing: border-box;
+            font-size: 14px;
         }
         button {
             background: var(--primary);
@@ -89,76 +90,82 @@
 <body>
 
 <div class="container">
-    <h2>🔍 الفاحص الذكي لسيرفرات الماك (Bulk Parser & Serverless Checker)</h2>
-    <p style="text-align: center; color: #9ca3af;">الصق الأسطر مباشرة وسيتم استخراج الـ DNS والـ MAC وفحص الباقات تلقائياً</p>
+    <h2>🔍 الفاحص الذكي والمنظف التلقائي لسيرفرات الماك</h2>
+    <p style="text-align: center; color: #9ca3af;">انسخ النص المليء بالرموز من التليجرام كما هو والصقه بالأسفل مباشرة 👇</p>
     
-    <textarea id="rawInput" placeholder="ضع السيرفرات هنا... يمكنك وضع عدة أسطر دفعة واحدة"></textarea>
-    <button onclick="processAndCheck()">ابدأ المعالجة والفحص الجماعي السريع 🚀</button>
+    <textarea id="rawInput" placeholder="ضع النص الكامل هنا (مثال لستة بوتات، رسائل تليجرام، إلخ)..."></textarea>
+    <button onclick="processAndCheck()">استخراج وفحص السيرفرات تلقائياً 🚀</button>
 
-    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري فحص الخوادم من خلال Vercel Serverless...</div>
+    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري استخراج السيرفرات وفحصها...</div>
     
     <div id="outputContainer"></div>
 </div>
 
 <script>
-function parseLine(line) {
-    line = line.trim();
-    if (!line) return null;
+// دالة الفرز الذكي لاستخراج البورتال والماك من وسط الرموز والدوشة
+function smartExtract(text) {
+    // تعبير نمطي لاستخراج روابط الويب
+    const urlRegex = /(https?:\/\/[^\s\s+]+)/gi;
+    // تعبير نمطي لاستخراج الماك أدرس بجميع صيغه
+    const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/g;
 
-    // استخراج الماك أدرس الذكي
-    const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/i;
-    const match = line.match(macRegex);
+    const urls = text.match(urlRegex) || [];
+    const macs = text.match(macRegex) || [];
 
-    if (match) {
-        const mac = match[0];
-        let portal = line.split(mac)[0];
-        // تنظيف الرابط من الفواصل والنقاط الزائدة في الطرف
-        portal = portal.trim().replace(/[:/]+$/, "");
-        // إعادة صيغة الـ http البدائية
-        if (!portal.startsWith('http')) {
-            portal = 'http://' + portal;
+    const pairs = [];
+    
+    // ربط كل بورتال تم العثور عليه بالماك الذي يليه بالترتيب
+    const count = Math.min(urls.length, macs.length);
+    for (let i = 0; i < count; i++) {
+        let cleanPortal = urls[i].trim();
+        
+        // تنظيف الرابط من أي علامات أو رموز ملتصقة به في آخره
+        cleanPortal = cleanPortal.replace(/☁️|📍|⚡|╭─•|├─•|➤|/g, '').trim();
+        // إزالة الفواصل والنقاط الزائدة من الأطراف
+        cleanPortal = cleanPortal.replace(/[:/]+$/, "");
+        if (!cleanPortal.startsWith('http')) {
+            cleanPortal = 'http://' + cleanPortal;
         }
-        return { portal: portal, mac: mac.trim() };
+
+        pairs.push({
+            portal: cleanPortal,
+            mac: macs[i].trim()
+        });
     }
-    return null;
+    return pairs;
 }
 
 async function processAndCheck() {
     const rawInput = document.getElementById('rawInput').value;
-    const lines = rawInput.split('\n');
     const outputContainer = document.getElementById('outputContainer');
     const loading = document.getElementById('loading');
     
     outputContainer.innerHTML = '';
-    const targets = [];
-
-    for (let line of lines) {
-        const parsed = parseLine(line);
-        if (parsed) targets.push(parsed);
-    }
+    
+    // استخراج الداتا تلقائياً من وسط النص
+    const targets = smartExtract(rawInput);
 
     if (targets.length === 0) {
-        alert('لم يتم العثور على أي سطر يحتوي على ماك أدرس صحيح!');
+        alert('لم يتم العثور على أي رابط بورتال أو ماك أدرس في النص المكتوب!');
         return;
     }
 
     loading.style.display = 'block';
 
-    // فحص متوازي لكل السيرفرات المستخرجة
+    // بدء الفحص بالتوازي لكل السيرفرات المستخرجة
     const promises = targets.map(async (target) => {
         const card = document.createElement('div');
         card.className = 'result-card';
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span><strong>البورتال:</strong> <span style="color:#60a5fa">${target.portal}</span></span>
-                <span><strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></span>
+                <span><strong>البورتال المستخرج:</strong> <span style="color:#60a5fa">${target.portal}</span></span>
+                <span><strong>الماك المستخرج:</strong> <span style="color:#f59e0b">${target.mac}</span></span>
                 <span class="status-badge" style="background:#4b5563">جاري الفحص...</span>
             </div>
         `;
         outputContainer.appendChild(card);
 
         try {
-            // استدعاء ملف الـ API الداخلي الخاص بـ Vercel لتخطي CORS
             const response = await fetch('/api/check', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
