@@ -15,26 +15,31 @@ export default async function handler(req, res) {
     let cleanUrl = portalUrl.trim().replace(/\/$/, "");
     if (!cleanUrl.endsWith('portal.php')) cleanUrl += '/portal.php';
 
-    const baseHeaders = {
+    const cleanMac = mac.trim();
+
+    // إعداد الهيدرز والـ Cookies بالطريقة الرسمية لأجهزة MAG الشغالة
+    const getHeaders = (token = '') => ({
         'User-Agent': 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3',
-        'Cookie': `mac=${encodeURIComponent(mac.trim())}; stb_lang=en; timezone=Africa/Cairo;`,
+        'Cookie': `mac=${encodeURIComponent(cleanMac)}; stb_lang=en; timezone=Africa/Cairo;${token ? ` Bearer=${token};` : ''}`,
         'Referer': cleanUrl,
-        'Accept': '*/*'
-    };
+        'Accept': '*/*',
+        'Authorization': token ? `Bearer ${token}` : undefined,
+        'X-User-Token': token || undefined
+    });
 
     try {
-        // إذا كان الطلب هو تحميل محتوى باقة معينة فقط
+        // --- 1. إذا كان الطلب هو سحب قنوات باقة معينة ---
         if (req.method === 'POST' && actionType === 'get_channels') {
             const channelsUrl = `${cleanUrl}?type=${actionType === 'vod' ? 'vod' : 'itv'}&action=get_ordered_list&genre=${encodeURIComponent(genreId)}&token=${clientToken || ''}&JsHttpRequest=1-xml`;
-            const channelsRes = await fetch(channelsUrl, { headers: baseHeaders });
+            const channelsRes = await fetch(channelsUrl, { headers: getHeaders(clientToken) });
             const channelsJson = await channelsRes.json();
-            const channelsList = channelsJson?.js?.data || [];
+            const channelsList = channelsJson?.js?.data || channelsJson?.js || [];
             return res.status(200).json({ success: true, channels: channelsList });
         }
 
-        // --- الفحص العادي وجلب الباقات (الطلب الرئيسي للوحة Control) ---
+        // --- 2. طلب الـ Handshake الرئيسي للحصول على التوكن ---
         const handshakeUrl = `${cleanUrl}?type=stb&action=handshake&JsHttpRequest=1-xml`;
-        const handshakeRes = await fetch(handshakeUrl, { headers: baseHeaders });
+        const handshakeRes = await fetch(handshakeUrl, { headers: getHeaders() });
         const handshakeText = await handshakeRes.text();
         
         let token = '';
@@ -44,36 +49,62 @@ export default async function handler(req, res) {
             try { token = JSON.parse(handshakeText)?.js?.token || ''; } catch(e) {}
         }
 
+        // --- 3. جلب الـ Profile والتحقق من التفعيل بمرونة عالية ---
         const profileUrl = `${cleanUrl}?type=stb&action=get_profile&token=${token}&JsHttpRequest=1-xml`;
-        const profileRes = await fetch(profileUrl, { headers: baseHeaders });
-        const profileJson = await profileRes.json();
-        const profileData = profileJson?.js;
+        const profileRes = await fetch(profileUrl, { headers: getHeaders(token) });
+        const profileText = await profileRes.text();
+        
+        let profileData = null;
+        try {
+            const parsed = JSON.parse(profileText);
+            profileData = parsed?.js || parsed;
+        } catch(e) {
+            if (profileText.includes('"active"') || profileText.includes('end_date')) {
+                profileData = { active: true };
+            }
+        }
 
-        if (!profileData || profileData.active === false) {
+        // لو السيرفر رفض تماماً إعطاء الملف الشخصي، نختبره بطلب الباقات كفرصة أخيرة للتأكد
+        let liveGenres = [];
+        let vodGenres = [];
+
+        const liveRes = await fetch(`${cleanUrl}?type=itv&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
+        const liveText = await liveRes.text();
+        try { liveGenres = JSON.parse(liveText)?.js || []; } catch(e) {}
+
+        // إذا نجح في جلب الباقات حتى لو الـ profile فاضي، نعتبر السيرفر شغال (✅)
+        if ((!profileData || profileData.active === false || profileData.active === "false") && liveGenres.length === 0) {
             return res.status(200).json({ success: false });
         }
 
-        const expiryDate = profileData.end_date || "غير محدد (مفتوح)";
+        const expiryDate = profileData?.end_date || "غير محدد (مفتوح / Active)";
 
-        // جلب تصنيفات البث المباشر مع الـ ID الخاص بكل باقة
-        const liveRes = await fetch(`${cleanUrl}?type=itv&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: baseHeaders });
-        const liveGenres = (await liveRes.json())?.js || [];
-
-        // جلب تصنيفات الأفلام مع الـ ID
-        const vodRes = await fetch(`${cleanUrl}?type=vod&action=get_categories&token=${token}&JsHttpRequest=1-xml`, { headers: baseHeaders });
-        const vodGenres = (await vodRes.json())?.js || [];
+        // جلب تصنيفات الأفلام
+        const vodRes = await fetch(`${cleanUrl}?type=vod&action=get_categories&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
+        try { vodGenres = (await vodRes.json())?.js || []; } catch(e) {}
 
         // جلب تصنيفات المسلسلات
-        const seriesRes = await fetch(`${cleanUrl}?type=series&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: baseHeaders });
-        const seriesGenres = (await seriesRes.json())?.js || [];
+        let seriesGenres = [];
+        const seriesRes = await fetch(`${cleanUrl}?type=series&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
+        try { seriesGenres = (await seriesRes.json())?.js || []; } catch(e) {}
+
+        // تنسيق وتنظيف مخرجات الباقات للواجهة
+        const formatGenres = (arr, isVod = false) => {
+            if (!Array.isArray(arr)) return [];
+            return arr.map(g => {
+                const id = g.id || g.alias || g.category_alias || '';
+                const title = g.title || g.name || g.category_name || id;
+                return id ? { id, title } : null;
+            }).filter(Boolean);
+        };
 
         return res.status(200).json({
             success: true,
             token: token,
             expiry: expiryDate,
-            live: liveGenres.map(g => ({ id: g.id || g.alias, title: g.title || g.name })),
-            vod: vodGenres.map(g => ({ id: g.id || g.category_alias, title: g.category_name || g.title })),
-            series: seriesGenres.map(g => ({ id: g.id, title: g.title }))
+            live: formatGenres(liveGenres),
+            vod: formatGenres(vodGenres, true),
+            series: formatGenres(seriesGenres)
         });
 
     } catch (error) {
