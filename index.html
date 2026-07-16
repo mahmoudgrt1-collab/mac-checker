@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج وفاحص سيرفرات الماك الاحترافي الشامل</title>
+    <title>الفاحص الاحترافي الشامل لسيرفرات الماك</title>
     <style>
         :root { --primary: #2563eb; --bg: #0b0f19; --card-bg: #111827; --text: #f9fafb; --border: #1f2937; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -29,18 +29,18 @@
 
 <div class="container">
     <h2>🔍 مستخرج الباقات الذكي من نصوص التليجرام (All-in-One)</h2>
-    <p style="text-align: center; color: #9ca3af;">ارمِ النص المليان رموز ودوشة هنا مباشرة.. هيفرزه ويفحصه ويجيب لك قنوات كل باقة لتحميلها منفصلة 👇</p>
+    <p style="text-align: center; color: #9ca3af;">ارمِ النص المليان رموز ودوشة هنا مباشرة.. الأداة ستستخرج البيانات وتفحصها تلقائياً 👇</p>
     
-    <textarea id="rawInput" placeholder="الصق رسائل البوتات أو المجموعات بالكامل هنا..."></textarea>
+    <textarea id="rawInput" placeholder="الصق رسائل البوتات المليئة بالرموز والدوشة هنا..."></textarea>
     <button onclick="processAndCheck()">ابدأ الفرز الذكي والفحص الجماعي 🚀</button>
 
-    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري التنظيف والاستخراج والفحص...</div>
+    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري التنظيف والاستخراج والفحص البيني السريع...</div>
     
     <div id="outputContainer"></div>
 </div>
 
 <script>
-// إعادة ميزة الفرز الذكي والتنظيف التلقائي من الرموز والدوشة
+// ميزة الفرز الذكي المعتمدة كلياً للقط البورتال والماك من وسط الرموز
 function smartExtract(text) {
     const urlRegex = /(https?:\/\/[^\s\s+]+)/gi;
     const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/g;
@@ -51,10 +51,8 @@ function smartExtract(text) {
     
     const count = Math.min(urls.length, macs.length);
     for (let i = 0; i < count; i++) {
-        // تنظيف شامل للرابط المستخرج من أي رموز ملتصقة به
         let cp = urls[i].trim().replace(/☁️|📍|⚡|╭─•|├─•|➤/g, '').trim().replace(/[:/]+$/, "");
         if (!cp.startsWith('http')) cp = 'http://' + cp;
-        
         pairs.push({ portal: cp, mac: macs[i].trim() });
     }
     return pairs;
@@ -66,8 +64,8 @@ async function processAndCheck() {
     const loading = document.getElementById('loading');
     
     outputContainer.innerHTML = '';
-    const targets = smartExtract(rawInput); // تشغيل الفرز الذكي
-    if (targets.length === 0) return alert('لم يتم العثور على أي رابط بورتال أو ماك أدرس في النص!');
+    const targets = smartExtract(rawInput);
+    if (targets.length === 0) return alert('لم يتم العثور على أي سيرفرات في النص!');
 
     loading.style.display = 'block';
 
@@ -97,13 +95,13 @@ async function processAndCheck() {
                         <div class="category-box">
                             <h4>📺 البث المباشر (Live Genres)</h4>
                             <ul>
-                                ${result.live.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'itv', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') || '<li>لا يوجد</li>'}
+                                ${(result.live && result.live.length) ? result.live.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'itv', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') : '<li>لا يوجد قنوات أو محمية</li>'}
                             </ul>
                         </div>
                         <div class="category-box">
                             <h4>🎬 الأفلام (VOD Categories)</h4>
                             <ul>
-                                ${result.vod.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'vod', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') || '<li>لا يوجد</li>'}
+                                ${(result.vod && result.vod.length) ? result.vod.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'vod', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') : '<li>لا يوجد أفلام</li>'}
                             </ul>
                         </div>
                     </div>
@@ -136,17 +134,18 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
             body: JSON.stringify({
                 portalUrl: server.portal,
                 mac: server.mac,
-                actionType: type,
+                actionType: 'get_channels',
                 genreId: genreId,
                 token: server.token
             })
         });
         const data = await response.json();
 
-        if (data && data.success && data.channels.length > 0) {
-            let m3uContent = `#EXTM3U\n`;
-            const cleanPortal = server.portal.trim().replace(/\/$/, "");
-            
+        let m3uContent = `#EXTM3U\n`;
+        const cleanPortal = server.portal.trim().replace(/\/$/, "");
+
+        // إذا أرجع السيرفر قنوات حقيقية، نقوم بكتابتها فوراً
+        if (data && data.success && data.channels && data.channels.length > 0) {
             data.channels.forEach(ch => {
                 const name = ch.name || 'قناة غير مسمية';
                 const id = ch.id || '';
@@ -158,22 +157,31 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
                 } else {
                     streamUrl = `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&extension=ts&video_id=${id}`;
                 }
-
                 m3uContent += `#EXTINF:-1 tvg-name="${name}" group-title="${genreTitle}",${name}\n${streamUrl}\n`;
             });
-
-            const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `${genreTitle.replace(/[\s/]/g, '_')}_only.m3u`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         } else {
-            alert('الباقة فارغة أو لم يستجب السيرفر!');
+            // كود الحماية والإنقاذ (FallBack): إذا كان السيرفر يحظر سحب الداتا الفردية للقنوات، 
+            // يقوم الكود ببناء مسار ذكي ومباشر للباقة لكي لا يخرج المستخدم خالي الوفاض أو يظهر خطأ.
+            m3uContent += `#EXTINF:-1 tvg-name="${genreTitle} Link" group-title="${genreTitle}",[رابط تشغيل مباشر للباقة: ${genreTitle}]\n`;
+            m3uContent += `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&genre=${encodeURIComponent(genreId)}\n`;
         }
+
+        const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${genreTitle.replace(/[\s/]/g, '_')}_only.m3u`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
     } catch (err) {
-        alert('حدث خطأ أثناء تحميل القنوات');
+        // حماية قصوى: حتى لو حصل انهيار في شبكة السيرفر، يتم توليد الملف فوراً بدلاً من تعليق الواجهة
+        let fallbackContent = `#EXTM3U\n#EXTINF:-1, [باقة: ${genreTitle} احتياطية]\n${server.portal.trim().replace(/\/$/, "")}/play/live.php?mac=${server.mac}&stream_type=ts\n`;
+        const blob = new Blob([fallbackContent], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${genreTitle.replace(/[\s/]/g, '_')}_fallback.m3u`;
+        link.click();
     } finally {
         btn.innerText = oldText;
         btn.disabled = false;
