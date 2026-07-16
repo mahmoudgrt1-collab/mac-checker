@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    const { portalUrl, mac, actionType, genreId, token: clientToken } = req.body;
+    const { portalUrl, mac, actionType, genreId, token: clientToken, type: clientType } = req.body;
 
     if (!portalUrl || !mac) {
         return res.status(400).json({ error: 'بيانات ناقصة' });
@@ -26,10 +26,14 @@ export default async function handler(req, res) {
     });
 
     try {
-        // --- وضع جلب القنوات الآمن ضد الأخطاء ---
+        // --- ضبط وضع جلب القنوات للفصل الذكي بين اللايف والفيد وسحب القنوات الحقيقية ---
         if (req.method === 'POST' && actionType === 'get_channels') {
-            const reqType = (genreId.startsWith('vod_') || genreId.includes('movie')) ? 'vod' : 'itv';
-            const channelsUrl = `${cleanUrl}?type=${reqType}&action=get_ordered_list&genre=${encodeURIComponent(genreId)}&token=${clientToken || ''}&JsHttpRequest=1-xml`;
+            // تحديد دقيق لنوع الطلب المبعوث من الـ index.html (itv أو vod)
+            const isVod = clientType === 'vod' || genreId.startsWith('vod_') || genreId.includes('movie');
+            const reqType = isVod ? 'vod' : 'itv';
+            const actionParam = isVod ? 'category' : 'genre'; // سيرفرات الماك تطلب الأفلام بـ category والقنوات بـ genre
+            
+            const channelsUrl = `${cleanUrl}?type=${reqType}&action=get_ordered_list&${actionParam}=${encodeURIComponent(genreId)}&token=${clientToken || ''}&JsHttpRequest=1-xml`;
             
             try {
                 const channelsRes = await fetch(channelsUrl, { headers: getHeaders(clientToken) });
@@ -37,12 +41,11 @@ export default async function handler(req, res) {
                 const channelsList = channelsJson?.js?.data || channelsJson?.js || [];
                 return res.status(200).json({ success: true, channels: Array.isArray(channelsList) ? channelsList : [] });
             } catch (innerErr) {
-                // محاولة احتياطية ثانية في حال فشل الـ JSON المباشر
                 return res.status(200).json({ success: true, channels: [] });
             }
         }
 
-        // --- وضع الفحص الرئيسي والـ Handshake ---
+        // --- وضع الفحص الرئيسي والـ Handshake الشغال تماماً دون تعديل ---
         const handshakeUrl = `${cleanUrl}?type=stb&action=handshake&JsHttpRequest=1-xml`;
         const handshakeRes = await fetch(handshakeUrl, { headers: getHeaders() });
         const handshakeText = await handshakeRes.text();
@@ -69,7 +72,7 @@ export default async function handler(req, res) {
             liveGenres = (await liveRes.json())?.js || [];
         } catch(e) {}
 
-        // التحقق من العمل: لو جلب باقات أو بروفايل شغال، يعتبر السيرفر أكتف علطول
+        // التحقق من العمل
         if (!liveGenres || liveGenres.length === 0) {
             if (!profileData || profileData.active === false || profileData.active === "false") {
                 return res.status(200).json({ success: false });
