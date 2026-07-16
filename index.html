@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج وفاحص سيرفرات الماك الاحترافي للباقات الكاملة</title>
+    <title>مستخرج وفاحص سيرفرات الماك الاحترافي الشامل</title>
     <style>
         :root { --primary: #2563eb; --bg: #0b0f19; --card-bg: #111827; --text: #f9fafb; --border: #1f2937; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 1100px; margin: auto; background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
         h2 { text-align: center; color: #3b82f6; margin-top: 0; }
-        textarea { width: 100%; height: 160px; background: #030712; color: #10b981; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-family: monospace; box-sizing: border-box; }
+        textarea { width: 100%; height: 180px; background: #030712; color: #10b981; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-family: monospace; box-sizing: border-box; font-size: 14px; }
         button { background: var(--primary); color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
         button:hover { background: #1d4ed8; }
         .result-card { background: #030712; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-top: 20px; }
@@ -28,28 +28,33 @@
 <body>
 
 <div class="container">
-    <h2>🔍 مستخرج الباقات الفعلي وسيرفرات الماك كملفات M3U شغالة</h2>
-    <p style="text-align: center; color: #9ca3af;">الصق النص هنا، وسيقوم الموقع بسحب كل القنوات والروابط التابعة للباقة المختارة فقط</p>
+    <h2>🔍 مستخرج الباقات الذكي من نصوص التليجرام (All-in-One)</h2>
+    <p style="text-align: center; color: #9ca3af;">ارمِ النص المليان رموز ودوشة هنا مباشرة.. هيفرزه ويفحصه ويجيب لك قنوات كل باقة لتحميلها منفصلة 👇</p>
     
-    <textarea id="rawInput" placeholder="ضع نص التليجرام بالكامل هنا..."></textarea>
-    <button onclick="processAndCheck()">ابدأ الفحص واستخراج الباقات الحقيقية 🚀</button>
+    <textarea id="rawInput" placeholder="الصق رسائل البوتات أو المجموعات بالكامل هنا..."></textarea>
+    <button onclick="processAndCheck()">ابدأ الفرز الذكي والفحص الجماعي 🚀</button>
 
-    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري المعالجة...</div>
+    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري التنظيف والاستخراج والفحص...</div>
     
     <div id="outputContainer"></div>
 </div>
 
 <script>
+// إعادة ميزة الفرز الذكي والتنظيف التلقائي من الرموز والدوشة
 function smartExtract(text) {
     const urlRegex = /(https?:\/\/[^\s\s+]+)/gi;
     const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/g;
+    
     const urls = text.match(urlRegex) || [];
     const macs = text.match(macRegex) || [];
     const pairs = [];
+    
     const count = Math.min(urls.length, macs.length);
     for (let i = 0; i < count; i++) {
+        // تنظيف شامل للرابط المستخرج من أي رموز ملتصقة به
         let cp = urls[i].trim().replace(/☁️|📍|⚡|╭─•|├─•|➤/g, '').trim().replace(/[:/]+$/, "");
         if (!cp.startsWith('http')) cp = 'http://' + cp;
+        
         pairs.push({ portal: cp, mac: macs[i].trim() });
     }
     return pairs;
@@ -61,15 +66,15 @@ async function processAndCheck() {
     const loading = document.getElementById('loading');
     
     outputContainer.innerHTML = '';
-    const targets = smartExtract(rawInput);
-    if (targets.length === 0) return alert('لم يتم العثور على بيانات صحيحة!');
+    const targets = smartExtract(rawInput); // تشغيل الفرز الذكي
+    if (targets.length === 0) return alert('لم يتم العثور على أي رابط بورتال أو ماك أدرس في النص!');
 
     loading.style.display = 'block';
 
     const promises = targets.map(async (target, idx) => {
         const card = document.createElement('div');
         card.className = 'result-card';
-        card.innerHTML = `<div style="padding:10px;">جاري فحص: ${target.portal} ...</div>`;
+        card.innerHTML = `<div style="padding:10px;">جاري فحص وتفكيك السيرفر المستخرج...</div>`;
         outputContainer.appendChild(card);
 
         try {
@@ -81,12 +86,11 @@ async function processAndCheck() {
             const result = await response.json();
 
             if (result && result.success) {
-                // حفظ التوكن وبيانات الهوية مؤقتاً لطلب القنوات الحقيقية
                 window[`server_${idx}`] = { portal: target.portal, mac: target.mac, token: result.token };
 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-                        <div><strong>البورتال:</strong> <span style="color:#60a5fa">${target.portal}</span> | <strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></div>
+                        <div><strong>البورتال المستخرج:</strong> <span style="color:#60a5fa">${target.portal}</span> | <strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></div>
                         <div><span class="status-badge success">شغال ✅</span> | ينتهي: <b style="color:#ef4444">${result.expiry}</b></div>
                     </div>
                     <div class="grid-categories">
@@ -105,10 +109,10 @@ async function processAndCheck() {
                     </div>
                 `;
             } else {
-                card.innerHTML = `<div style="color:#dc2626;">❌ السيرفر مغلق أو الماك غير صحيح: ${target.portal}</div>`;
+                card.innerHTML = `<div style="color:#dc2626; padding:10px;">❌ غير شغال أو منتهي: البورتال [${target.portal}] | الماك [${target.mac}]</div>`;
             }
         } catch (err) {
-            card.innerHTML = `<div>⚠️ خطأ في الاتصال بالسيرفر</div>`;
+            card.innerHTML = `<div style="padding:10px;">⚠️ خطأ في الاتصال أثناء فحص هذا السيرفر</div>`;
         }
     });
 
@@ -116,7 +120,6 @@ async function processAndCheck() {
     loading.style.display = 'none';
 }
 
-// دالة جلب قائمة قنوات الباقة وتحميلها الفعلي كـ M3U متوافق بنسبة 100%
 async function downloadGenre(serverIdx, type, genreId, genreTitle) {
     const server = window[`server_${serverIdx}`];
     if (!server) return alert('خطأ في جلب بيانات السيرفر');
@@ -127,7 +130,6 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
     btn.disabled = true;
 
     try {
-        // نطلب من السيرفر الخلفي جلب القنوات التابعة لهذه الباقة بالذات عبر الـ API
         const response = await fetch('/api/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -145,25 +147,21 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
             let m3uContent = `#EXTM3U\n`;
             const cleanPortal = server.portal.trim().replace(/\/$/, "");
             
-            // قراءة القنوات الحقيقية وتوليد روابط البث المفتوحة الصالحة لأي مشغل خارجى
             data.channels.forEach(ch => {
                 const name = ch.name || 'قناة غير مسمية';
                 const id = ch.id || '';
-                const cmd = ch.cmd || ''; // المسار الداخلي للبث من السيرفر
+                const cmd = ch.cmd || '';
 
-                // استخراج معرف القناة من كود الـ cmd الموجه (مثل ffmpeg http://...)
                 let streamUrl = '';
                 if (cmd.includes('http')) {
                     streamUrl = cmd.replace(/^.*?http/, 'http').trim();
                 } else {
-                    // البنية القياسية لبث الماك عند استدعائه بالتوكن والـ ID
                     streamUrl = `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&extension=ts&video_id=${id}`;
                 }
 
                 m3uContent += `#EXTINF:-1 tvg-name="${name}" group-title="${genreTitle}",${name}\n${streamUrl}\n`;
             });
 
-            // بدء التحميل التلقائي للملف الحقيقي
             const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -172,10 +170,10 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
             link.click();
             document.body.removeChild(link);
         } else {
-            alert('هذه الباقة فارغة أو السيرفر لم يرسل قنواتها حالياً!');
+            alert('الباقة فارغة أو لم يستجب السيرفر!');
         }
     } catch (err) {
-        alert('حدث خطأ في جلب قنوات الباقة من السيرفر');
+        alert('حدث خطأ أثناء تحميل القنوات');
     } finally {
         btn.innerText = oldText;
         btn.disabled = false;
