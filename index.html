@@ -135,6 +135,7 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
                 portalUrl: server.portal,
                 mac: server.mac,
                 actionType: 'get_channels',
+                type: type, // السطر ده تم إضافته لربط نوع الفيد بدقة مع الـ API الجديد
                 genreId: genreId,
                 token: server.token
             })
@@ -154,7 +155,7 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
                 if (cmd.includes('http')) {
                     streamUrl = cmd.replace(/^.*?http/, 'http').trim();
                 } else {
-                    // التعديل والإصلاح هنا فقط للتفريق التلقائي بين رابط الفيلم ورابط القناة الحية
+                    // التعبئة والتحويل التلقائي لروابط التشغيل حسب الباقة
                     if (type === 'vod') {
                         streamUrl = `${cleanPortal}/play/vod.php?mac=${server.mac}&stream_type=mp4&extension=mp4&video_id=${id}`;
                     } else {
