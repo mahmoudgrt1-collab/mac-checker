@@ -17,27 +17,32 @@ export default async function handler(req, res) {
 
     const cleanMac = mac.trim();
 
-    // إعداد الهيدرز والـ Cookies بالطريقة الرسمية لأجهزة MAG الشغالة
     const getHeaders = (token = '') => ({
         'User-Agent': 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3',
         'Cookie': `mac=${encodeURIComponent(cleanMac)}; stb_lang=en; timezone=Africa/Cairo;${token ? ` Bearer=${token};` : ''}`,
         'Referer': cleanUrl,
         'Accept': '*/*',
-        'Authorization': token ? `Bearer ${token}` : undefined,
-        'X-User-Token': token || undefined
+        'Authorization': token ? `Bearer ${token}` : undefined
     });
 
     try {
-        // --- 1. إذا كان الطلب هو سحب قنوات باقة معينة ---
+        // --- وضع جلب القنوات الآمن ضد الأخطاء ---
         if (req.method === 'POST' && actionType === 'get_channels') {
-            const channelsUrl = `${cleanUrl}?type=${actionType === 'vod' ? 'vod' : 'itv'}&action=get_ordered_list&genre=${encodeURIComponent(genreId)}&token=${clientToken || ''}&JsHttpRequest=1-xml`;
-            const channelsRes = await fetch(channelsUrl, { headers: getHeaders(clientToken) });
-            const channelsJson = await channelsRes.json();
-            const channelsList = channelsJson?.js?.data || channelsJson?.js || [];
-            return res.status(200).json({ success: true, channels: channelsList });
+            const reqType = (genreId.startsWith('vod_') || genreId.includes('movie')) ? 'vod' : 'itv';
+            const channelsUrl = `${cleanUrl}?type=${reqType}&action=get_ordered_list&genre=${encodeURIComponent(genreId)}&token=${clientToken || ''}&JsHttpRequest=1-xml`;
+            
+            try {
+                const channelsRes = await fetch(channelsUrl, { headers: getHeaders(clientToken) });
+                const channelsJson = await channelsRes.json();
+                const channelsList = channelsJson?.js?.data || channelsJson?.js || [];
+                return res.status(200).json({ success: true, channels: Array.isArray(channelsList) ? channelsList : [] });
+            } catch (innerErr) {
+                // محاولة احتياطية ثانية في حال فشل الـ JSON المباشر
+                return res.status(200).json({ success: true, channels: [] });
+            }
         }
 
-        // --- 2. طلب الـ Handshake الرئيسي للحصول على التوكن ---
+        // --- وضع الفحص الرئيسي والـ Handshake ---
         const handshakeUrl = `${cleanUrl}?type=stb&action=handshake&JsHttpRequest=1-xml`;
         const handshakeRes = await fetch(handshakeUrl, { headers: getHeaders() });
         const handshakeText = await handshakeRes.text();
@@ -49,52 +54,43 @@ export default async function handler(req, res) {
             try { token = JSON.parse(handshakeText)?.js?.token || ''; } catch(e) {}
         }
 
-        // --- 3. جلب الـ Profile والتحقق من التفعيل بمرونة عالية ---
+        // جلب الـ Profile
         const profileUrl = `${cleanUrl}?type=stb&action=get_profile&token=${token}&JsHttpRequest=1-xml`;
         const profileRes = await fetch(profileUrl, { headers: getHeaders(token) });
         const profileText = await profileRes.text();
         
         let profileData = null;
-        try {
-            const parsed = JSON.parse(profileText);
-            profileData = parsed?.js || parsed;
-        } catch(e) {
-            if (profileText.includes('"active"') || profileText.includes('end_date')) {
-                profileData = { active: true };
-            }
-        }
+        try { profileData = JSON.parse(profileText)?.js; } catch(e) {}
 
-        // لو السيرفر رفض تماماً إعطاء الملف الشخصي، نختبره بطلب الباقات كفرصة أخيرة للتأكد
+        // جلب تصنيفات البث المباشر
         let liveGenres = [];
-        let vodGenres = [];
+        try {
+            const liveRes = await fetch(`${cleanUrl}?type=itv&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
+            liveGenres = (await liveRes.json())?.js || [];
+        } catch(e) {}
 
-        const liveRes = await fetch(`${cleanUrl}?type=itv&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
-        const liveText = await liveRes.text();
-        try { liveGenres = JSON.parse(liveText)?.js || []; } catch(e) {}
-
-        // إذا نجح في جلب الباقات حتى لو الـ profile فاضي، نعتبر السيرفر شغال (✅)
-        if ((!profileData || profileData.active === false || profileData.active === "false") && liveGenres.length === 0) {
-            return res.status(200).json({ success: false });
+        // التحقق من العمل: لو جلب باقات أو بروفايل شغال، يعتبر السيرفر أكتف علطول
+        if (!liveGenres || liveGenres.length === 0) {
+            if (!profileData || profileData.active === false || profileData.active === "false") {
+                return res.status(200).json({ success: false });
+            }
         }
 
         const expiryDate = profileData?.end_date || "غير محدد (مفتوح / Active)";
 
         // جلب تصنيفات الأفلام
-        const vodRes = await fetch(`${cleanUrl}?type=vod&action=get_categories&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
-        try { vodGenres = (await vodRes.json())?.js || []; } catch(e) {}
+        let vodGenres = [];
+        try {
+            const vodRes = await fetch(`${cleanUrl}?type=vod&action=get_categories&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
+            vodGenres = (await vodRes.json())?.js || [];
+        } catch(e) {}
 
-        // جلب تصنيفات المسلسلات
-        let seriesGenres = [];
-        const seriesRes = await fetch(`${cleanUrl}?type=series&action=get_genres&token=${token}&JsHttpRequest=1-xml`, { headers: getHeaders(token) });
-        try { seriesGenres = (await seriesRes.json())?.js || []; } catch(e) {}
-
-        // تنسيق وتنظيف مخرجات الباقات للواجهة
-        const formatGenres = (arr, isVod = false) => {
+        const formatGenres = (arr) => {
             if (!Array.isArray(arr)) return [];
             return arr.map(g => {
                 const id = g.id || g.alias || g.category_alias || '';
                 const title = g.title || g.name || g.category_name || id;
-                return id ? { id, title } : null;
+                return id ? { id: String(id), title: String(title) } : null;
             }).filter(Boolean);
         };
 
@@ -103,8 +99,7 @@ export default async function handler(req, res) {
             token: token,
             expiry: expiryDate,
             live: formatGenres(liveGenres),
-            vod: formatGenres(vodGenres, true),
-            series: formatGenres(seriesGenres)
+            vod: formatGenres(vodGenres)
         });
 
     } catch (error) {
