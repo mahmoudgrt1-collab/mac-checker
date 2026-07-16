@@ -3,120 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج وفاحص سيرفرات الماك الذكي مع تحميل الباقات</title>
+    <title>مستخرج وفاحص سيرفرات الماك الاحترافي للباقات الكاملة</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --bg: #0b0f19;
-            --card-bg: #111827;
-            --text: #f9fafb;
-            --border: #1f2937;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1100px;
-            margin: auto;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
+        :root { --primary: #2563eb; --bg: #0b0f19; --card-bg: #111827; --text: #f9fafb; --border: #1f2937; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
         h2 { text-align: center; color: #3b82f6; margin-top: 0; }
-        textarea {
-            width: 100%;
-            height: 180px;
-            background: #030712;
-            color: #10b981;
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 8px;
-            font-family: monospace;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-        }
+        textarea { width: 100%; height: 160px; background: #030712; color: #10b981; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-family: monospace; box-sizing: border-box; }
+        button { background: var(--primary); color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
         button:hover { background: #1d4ed8; }
-        .result-card {
-            background: #030712;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-        }
+        .result-card { background: #030712; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-top: 20px; }
+        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
         .success { background: #059669; color: white; }
         .failed { background: #dc2626; color: white; }
-        .grid-categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .category-box {
-            background: #111827;
-            padding: 12px;
-            border-radius: 6px;
-            border-top: 3px solid #3b82f6;
-            max-height: 300px;
-            overflow-y: auto;
-        }
+        .grid-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
+        .category-box { background: #111827; padding: 12px; border-radius: 6px; border-top: 3px solid #3b82f6; max-height: 300px; overflow-y: auto; }
         .category-box h4 { margin: 0 0 10px 0; color: #60a5fa; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         .category-box ul { list-style: none; padding: 0; margin: 0; font-size: 13px; }
-        .category-box li { 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0; 
-            border-bottom: 1px dashed #1f2937; 
-            color: #e5e7eb; 
-        }
-        .btn-download {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 2px 6px;
-            font-size: 11px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: normal;
-            width: auto;
-            margin: 0;
-        }
+        .category-box li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #1f2937; color: #e5e7eb; }
+        .btn-download { background: #10b981; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; }
         .btn-download:hover { background: #059669; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔍 فاحص الماكات الجماعي ومستخرج الباقات المنفصلة (M3U Exporter)</h2>
-    <p style="text-align: center; color: #9ca3af;">الصق النص هنا، وبعد ظهور الباقات يمكنك تحميل أي باقة منفردة كملف M3U فوراً</p>
+    <h2>🔍 مستخرج الباقات الفعلي وسيرفرات الماك كملفات M3U شغالة</h2>
+    <p style="text-align: center; color: #9ca3af;">الصق النص هنا، وسيقوم الموقع بسحب كل القنوات والروابط التابعة للباقة المختارة فقط</p>
     
-    <textarea id="rawInput" placeholder="ضع النص الكامل المأخوذ من التليجرام أو البوتات هنا..."></textarea>
-    <button onclick="processAndCheck()">استخراج وفحص السيرفرات تلقائياً 🚀</button>
+    <textarea id="rawInput" placeholder="ضع نص التليجرام بالكامل هنا..."></textarea>
+    <button onclick="processAndCheck()">ابدأ الفحص واستخراج الباقات الحقيقية 🚀</button>
 
-    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري معالجة البيانات وفحص الخوادم...</div>
+    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري المعالجة...</div>
     
     <div id="outputContainer"></div>
 </div>
@@ -125,19 +43,14 @@
 function smartExtract(text) {
     const urlRegex = /(https?:\/\/[^\s\s+]+)/gi;
     const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/g;
-
     const urls = text.match(urlRegex) || [];
     const macs = text.match(macRegex) || [];
-
     const pairs = [];
     const count = Math.min(urls.length, macs.length);
     for (let i = 0; i < count; i++) {
-        let cleanPortal = urls[i].trim().replace(/☁️|📍|⚡|╭─•|├─•|➤|/g, '').trim();
-        cleanPortal = cleanPortal.replace(/[:/]+$/, "");
-        if (!cleanPortal.startsWith('http')) {
-            cleanPortal = 'http://' + cleanPortal;
-        }
-        pairs.push({ portal: cleanPortal, mac: macs[i].trim() });
+        let cp = urls[i].trim().replace(/☁️|📍|⚡|╭─•|├─•|➤/g, '').trim().replace(/[:/]+$/, "");
+        if (!cp.startsWith('http')) cp = 'http://' + cp;
+        pairs.push({ portal: cp, mac: macs[i].trim() });
     }
     return pairs;
 }
@@ -149,24 +62,14 @@ async function processAndCheck() {
     
     outputContainer.innerHTML = '';
     const targets = smartExtract(rawInput);
-
-    if (targets.length === 0) {
-        alert('لم يتم العثور على أي بيانات صحيحة!');
-        return;
-    }
+    if (targets.length === 0) return alert('لم يتم العثور على بيانات صحيحة!');
 
     loading.style.display = 'block';
 
     const promises = targets.map(async (target, idx) => {
         const card = document.createElement('div');
         card.className = 'result-card';
-        card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span><strong>البورتال:</strong> <span style="color:#60a5fa">${target.portal}</span></span>
-                <span><strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></span>
-                <span class="status-badge" style="background:#4b5563">جاري الفحص...</span>
-            </div>
-        `;
+        card.innerHTML = `<div style="padding:10px;">جاري فحص: ${target.portal} ...</div>`;
         outputContainer.appendChild(card);
 
         try {
@@ -178,71 +81,34 @@ async function processAndCheck() {
             const result = await response.json();
 
             if (result && result.success) {
-                // حفظ البيانات مؤقتاً في كائن الصفحة لتسهيل تحميلها لاحقاً بضغط الزر
-                window[`serverData_${idx}`] = { portal: target.portal, mac: target.mac };
+                // حفظ التوكن وبيانات الهوية مؤقتاً لطلب القنوات الحقيقية
+                window[`server_${idx}`] = { portal: target.portal, mac: target.mac, token: result.token };
 
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;">
-                        <div>
-                            <strong>البورتال:</strong> <span style="color:#60a5fa">${target.portal}</span> | 
-                            <strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span>
-                        </div>
-                        <div>
-                            <span class="status-badge success">شغال ✅</span>
-                            <span style="margin-right: 15px;">ينتهي في: <b style="color:#ef4444">${result.expiry}</b></span>
-                        </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                        <div><strong>البورتال:</strong> <span style="color:#60a5fa">${target.portal}</span> | <strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></div>
+                        <div><span class="status-badge success">شغال ✅</span> | ينتهي: <b style="color:#ef4444">${result.expiry}</b></div>
                     </div>
                     <div class="grid-categories">
                         <div class="category-box">
-                            <h4>📺 باقات البث المباشر (Live)</h4>
+                            <h4>📺 البث المباشر (Live Genres)</h4>
                             <ul>
-                                ${result.live.map(g => `
-                                    <li>
-                                        <span>${g.title || g}</span>
-                                        <button class="btn-download" onclick="downloadPlaylist('${idx}', 'itv', '${g.id || g}')">تحميل M3U 📥</button>
-                                    </li>
-                                `).join('') || '<li>لا يوجد باقات</li>'}
+                                ${result.live.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'itv', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') || '<li>لا يوجد</li>'}
                             </ul>
                         </div>
                         <div class="category-box">
-                            <h4>🎬 باقات الأفلام (VOD)</h4>
+                            <h4>🎬 الأفلام (VOD Categories)</h4>
                             <ul>
-                                ${result.vod.map(g => `
-                                    <li>
-                                        <span>${g.title || g}</span>
-                                        <button class="btn-download" onclick="downloadPlaylist('${idx}', 'vod', '${g.id || g}')">تحميل M3U 📥</button>
-                                    </li>
-                                `).join('') || '<li>لا يوجد باقات</li>'}
-                            </ul>
-                        </div>
-                        <div class="category-box">
-                            <h4>🍿 باقات المسلسلات (Series)</h4>
-                            <ul>
-                                ${result.series.map(g => `
-                                    <li>
-                                        <span>${g.title || g}</span>
-                                        <button class="btn-download" onclick="downloadPlaylist('${idx}', 'series', '${g.id || g}')">تحميل M3U 📥</button>
-                                    </li>
-                                `).join('') || '<li>لا يوجد باقات</li>'}
+                                ${result.vod.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'vod', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') || '<li>لا يوجد</li>'}
                             </ul>
                         </div>
                     </div>
                 `;
             } else {
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><strong>البورتال:</strong> ${target.portal} | <strong>الماك:</strong> ${target.mac}</div>
-                        <span class="status-badge failed">غير شغال / مغلق ❌</span>
-                    </div>
-                `;
+                card.innerHTML = `<div style="color:#dc2626;">❌ السيرفر مغلق أو الماك غير صحيح: ${target.portal}</div>`;
             }
         } catch (err) {
-            card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div><strong>البورتال:</strong> ${target.portal}</div>
-                    <span class="status-badge failed">خطأ في الاتصال ⚠️</span>
-                </div>
-            `;
+            card.innerHTML = `<div>⚠️ خطأ في الاتصال بالسيرفر</div>`;
         }
     });
 
@@ -250,30 +116,70 @@ async function processAndCheck() {
     loading.style.display = 'none';
 }
 
-// دالة توليد وتحميل باقة الـ M3U المنفردة بناءً على طلبك
-function downloadPlaylist(serverIdx, type, genreId) {
-    const server = window[`serverData_${serverIdx}`];
-    if (!server) return alert('حدث خطأ في قراءة بيانات السيرفر');
+// دالة جلب قائمة قنوات الباقة وتحميلها الفعلي كـ M3U متوافق بنسبة 100%
+async function downloadGenre(serverIdx, type, genreId, genreTitle) {
+    const server = window[`server_${serverIdx}`];
+    if (!server) return alert('خطأ في جلب بيانات السيرفر');
 
-    // تركيب الرابط المباشر للبث الذكي المتوافق مع برامج التشغيل الخارجية (مثل VLC)
-    // الصيغة القياسية لتشغيل قنوات سيرفر الماك مباشرة كـ سيلفر بث
-    const cleanMac = server.mac.trim();
-    const cleanPortal = server.portal.trim().replace(/\/$/, "");
+    const btn = event.target;
+    const oldText = btn.innerText;
+    btn.innerText = 'جاري السحب...';
+    btn.disabled = true;
 
-    // كود توليد محتوى ملف الـ M3U للباقة المختارة فقط
-    let m3uContent = `#EXTM3U\n`;
-    m3uContent += `#EXTINF:-1, [قناة تجريبية من باقة ${genreId}]\n`;
-    // نقوم بتوجيه البرنامج لرابط السيرفر المباشر مع تمرير بيانات الهوية في الرابط للتشغيل الخارجي الذكي
-    m3uContent += `${cleanPortal}/play/live.php?mac=${encodeURIComponent(cleanMac)}&stream_type=ts\n`;
+    try {
+        // نطلب من السيرفر الخلفي جلب القنوات التابعة لهذه الباقة بالذات عبر الـ API
+        const response = await fetch('/api/check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                portalUrl: server.portal,
+                mac: server.mac,
+                actionType: type,
+                genreId: genreId,
+                token: server.token
+            })
+        });
+        const data = await response.json();
 
-    // إنشاء ملف للتحميل الفوري للمستخدم بدون تخزين على السيرفر
-    const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${genreId.replace(/[^a-zA-Z0-9]/g, '_')}_only.m3u`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        if (data && data.success && data.channels.length > 0) {
+            let m3uContent = `#EXTM3U\n`;
+            const cleanPortal = server.portal.trim().replace(/\/$/, "");
+            
+            // قراءة القنوات الحقيقية وتوليد روابط البث المفتوحة الصالحة لأي مشغل خارجى
+            data.channels.forEach(ch => {
+                const name = ch.name || 'قناة غير مسمية';
+                const id = ch.id || '';
+                const cmd = ch.cmd || ''; // المسار الداخلي للبث من السيرفر
+
+                // استخراج معرف القناة من كود الـ cmd الموجه (مثل ffmpeg http://...)
+                let streamUrl = '';
+                if (cmd.includes('http')) {
+                    streamUrl = cmd.replace(/^.*?http/, 'http').trim();
+                } else {
+                    // البنية القياسية لبث الماك عند استدعائه بالتوكن والـ ID
+                    streamUrl = `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&extension=ts&video_id=${id}`;
+                }
+
+                m3uContent += `#EXTINF:-1 tvg-name="${name}" group-title="${genreTitle}",${name}\n${streamUrl}\n`;
+            });
+
+            // بدء التحميل التلقائي للملف الحقيقي
+            const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${genreTitle.replace(/[\s/]/g, '_')}_only.m3u`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            alert('هذه الباقة فارغة أو السيرفر لم يرسل قنواتها حالياً!');
+        }
+    } catch (err) {
+        alert('حدث خطأ في جلب قنوات الباقة من السيرفر');
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
+    }
 }
 </script>
 
