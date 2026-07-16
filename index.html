@@ -144,7 +144,6 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
         let m3uContent = `#EXTM3U\n`;
         const cleanPortal = server.portal.trim().replace(/\/$/, "");
 
-        // إذا أرجع السيرفر قنوات حقيقية، نقوم بكتابتها فوراً
         if (data && data.success && data.channels && data.channels.length > 0) {
             data.channels.forEach(ch => {
                 const name = ch.name || 'قناة غير مسمية';
@@ -155,15 +154,22 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
                 if (cmd.includes('http')) {
                     streamUrl = cmd.replace(/^.*?http/, 'http').trim();
                 } else {
-                    streamUrl = `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&extension=ts&video_id=${id}`;
+                    // التعديل والإصلاح هنا فقط للتفريق التلقائي بين رابط الفيلم ورابط القناة الحية
+                    if (type === 'vod') {
+                        streamUrl = `${cleanPortal}/play/vod.php?mac=${server.mac}&stream_type=mp4&extension=mp4&video_id=${id}`;
+                    } else {
+                        streamUrl = `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&extension=ts&video_id=${id}`;
+                    }
                 }
                 m3uContent += `#EXTINF:-1 tvg-name="${name}" group-title="${genreTitle}",${name}\n${streamUrl}\n`;
             });
         } else {
-            // كود الحماية والإنقاذ (FallBack): إذا كان السيرفر يحظر سحب الداتا الفردية للقنوات، 
-            // يقوم الكود ببناء مسار ذكي ومباشر للباقة لكي لا يخرج المستخدم خالي الوفاض أو يظهر خطأ.
             m3uContent += `#EXTINF:-1 tvg-name="${genreTitle} Link" group-title="${genreTitle}",[رابط تشغيل مباشر للباقة: ${genreTitle}]\n`;
-            m3uContent += `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&genre=${encodeURIComponent(genreId)}\n`;
+            if (type === 'vod') {
+                m3uContent += `${cleanPortal}/play/vod.php?mac=${server.mac}&stream_type=mp4&category=${encodeURIComponent(genreId)}\n`;
+            } else {
+                m3uContent += `${cleanPortal}/play/live.php?mac=${server.mac}&stream_type=ts&genre=${encodeURIComponent(genreId)}\n`;
+            }
         }
 
         const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
@@ -175,8 +181,8 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
         document.body.removeChild(link);
 
     } catch (err) {
-        // حماية قصوى: حتى لو حصل انهيار في شبكة السيرفر، يتم توليد الملف فوراً بدلاً من تعليق الواجهة
-        let fallbackContent = `#EXTM3U\n#EXTINF:-1, [باقة: ${genreTitle} احتياطية]\n${server.portal.trim().replace(/\/$/, "")}/play/live.php?mac=${server.mac}&stream_type=ts\n`;
+        let fileExt = type === 'vod' ? 'vod.php' : 'live.php';
+        let fallbackContent = `#EXTM3U\n#EXTINF:-1, [باقة: ${genreTitle} احتياطية]\n${server.portal.trim().replace(/\/$/, "")}/play/${fileExt}?mac=${server.mac}\n`;
         const blob = new Blob([fallbackContent], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
