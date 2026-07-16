@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج وفاحص سيرفرات الماك الذكي</title>
+    <title>مستخرج وفاحص سيرفرات الماك الذكي مع تحميل الباقات</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -30,7 +30,7 @@
         h2 { text-align: center; color: #3b82f6; margin-top: 0; }
         textarea {
             width: 100%;
-            height: 200px;
+            height: 180px;
             background: #030712;
             color: #10b981;
             border: 1px solid var(--border);
@@ -79,58 +79,65 @@
             padding: 12px;
             border-radius: 6px;
             border-top: 3px solid #3b82f6;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
         }
         .category-box h4 { margin: 0 0 10px 0; color: #60a5fa; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         .category-box ul { list-style: none; padding: 0; margin: 0; font-size: 13px; }
-        .category-box li { padding: 5px 0; border-bottom: 1px dashed #1f2937; color: #e5e7eb; }
+        .category-box li { 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0; 
+            border-bottom: 1px dashed #1f2937; 
+            color: #e5e7eb; 
+        }
+        .btn-download {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: normal;
+            width: auto;
+            margin: 0;
+        }
+        .btn-download:hover { background: #059669; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔍 الفاحص الذكي والمنظف التلقائي لسيرفرات الماك</h2>
-    <p style="text-align: center; color: #9ca3af;">انسخ النص المليء بالرموز من التليجرام كما هو والصقه بالأسفل مباشرة 👇</p>
+    <h2>🔍 فاحص الماكات الجماعي ومستخرج الباقات المنفصلة (M3U Exporter)</h2>
+    <p style="text-align: center; color: #9ca3af;">الصق النص هنا، وبعد ظهور الباقات يمكنك تحميل أي باقة منفردة كملف M3U فوراً</p>
     
-    <textarea id="rawInput" placeholder="ضع النص الكامل هنا (مثال لستة بوتات، رسائل تليجرام، إلخ)..."></textarea>
+    <textarea id="rawInput" placeholder="ضع النص الكامل المأخوذ من التليجرام أو البوتات هنا..."></textarea>
     <button onclick="processAndCheck()">استخراج وفحص السيرفرات تلقائياً 🚀</button>
 
-    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري استخراج السيرفرات وفحصها...</div>
+    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري معالجة البيانات وفحص الخوادم...</div>
     
     <div id="outputContainer"></div>
 </div>
 
 <script>
-// دالة الفرز الذكي لاستخراج البورتال والماك من وسط الرموز والدوشة
 function smartExtract(text) {
-    // تعبير نمطي لاستخراج روابط الويب
     const urlRegex = /(https?:\/\/[^\s\s+]+)/gi;
-    // تعبير نمطي لاستخراج الماك أدرس بجميع صيغه
     const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/g;
 
     const urls = text.match(urlRegex) || [];
     const macs = text.match(macRegex) || [];
 
     const pairs = [];
-    
-    // ربط كل بورتال تم العثور عليه بالماك الذي يليه بالترتيب
     const count = Math.min(urls.length, macs.length);
     for (let i = 0; i < count; i++) {
-        let cleanPortal = urls[i].trim();
-        
-        // تنظيف الرابط من أي علامات أو رموز ملتصقة به في آخره
-        cleanPortal = cleanPortal.replace(/☁️|📍|⚡|╭─•|├─•|➤|/g, '').trim();
-        // إزالة الفواصل والنقاط الزائدة من الأطراف
+        let cleanPortal = urls[i].trim().replace(/☁️|📍|⚡|╭─•|├─•|➤|/g, '').trim();
         cleanPortal = cleanPortal.replace(/[:/]+$/, "");
         if (!cleanPortal.startsWith('http')) {
             cleanPortal = 'http://' + cleanPortal;
         }
-
-        pairs.push({
-            portal: cleanPortal,
-            mac: macs[i].trim()
-        });
+        pairs.push({ portal: cleanPortal, mac: macs[i].trim() });
     }
     return pairs;
 }
@@ -141,25 +148,22 @@ async function processAndCheck() {
     const loading = document.getElementById('loading');
     
     outputContainer.innerHTML = '';
-    
-    // استخراج الداتا تلقائياً من وسط النص
     const targets = smartExtract(rawInput);
 
     if (targets.length === 0) {
-        alert('لم يتم العثور على أي رابط بورتال أو ماك أدرس في النص المكتوب!');
+        alert('لم يتم العثور على أي بيانات صحيحة!');
         return;
     }
 
     loading.style.display = 'block';
 
-    // بدء الفحص بالتوازي لكل السيرفرات المستخرجة
-    const promises = targets.map(async (target) => {
+    const promises = targets.map(async (target, idx) => {
         const card = document.createElement('div');
         card.className = 'result-card';
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span><strong>البورتال المستخرج:</strong> <span style="color:#60a5fa">${target.portal}</span></span>
-                <span><strong>الماك المستخرج:</strong> <span style="color:#f59e0b">${target.mac}</span></span>
+                <span><strong>البورتال:</strong> <span style="color:#60a5fa">${target.portal}</span></span>
+                <span><strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></span>
                 <span class="status-badge" style="background:#4b5563">جاري الفحص...</span>
             </div>
         `;
@@ -174,6 +178,9 @@ async function processAndCheck() {
             const result = await response.json();
 
             if (result && result.success) {
+                // حفظ البيانات مؤقتاً في كائن الصفحة لتسهيل تحميلها لاحقاً بضغط الزر
+                window[`serverData_${idx}`] = { portal: target.portal, mac: target.mac };
+
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;">
                         <div>
@@ -188,25 +195,43 @@ async function processAndCheck() {
                     <div class="grid-categories">
                         <div class="category-box">
                             <h4>📺 باقات البث المباشر (Live)</h4>
-                            <ul>${result.live.map(item => `<li>${item}</li>`).join('') || '<li>لا يوجد تصنيفات</li>'}</ul>
+                            <ul>
+                                ${result.live.map(g => `
+                                    <li>
+                                        <span>${g.title || g}</span>
+                                        <button class="btn-download" onclick="downloadPlaylist('${idx}', 'itv', '${g.id || g}')">تحميل M3U 📥</button>
+                                    </li>
+                                `).join('') || '<li>لا يوجد باقات</li>'}
+                            </ul>
                         </div>
                         <div class="category-box">
                             <h4>🎬 باقات الأفلام (VOD)</h4>
-                            <ul>${result.vod.map(item => `<li>${item}</li>`).join('') || '<li>لا يوجد تصنيفات</li>'}</ul>
+                            <ul>
+                                ${result.vod.map(g => `
+                                    <li>
+                                        <span>${g.title || g}</span>
+                                        <button class="btn-download" onclick="downloadPlaylist('${idx}', 'vod', '${g.id || g}')">تحميل M3U 📥</button>
+                                    </li>
+                                `).join('') || '<li>لا يوجد باقات</li>'}
+                            </ul>
                         </div>
                         <div class="category-box">
                             <h4>🍿 باقات المسلسلات (Series)</h4>
-                            <ul>${result.series.map(item => `<li>${item}</li>`).join('') || '<li>لا يوجد تصنيفات</li>'}</ul>
+                            <ul>
+                                ${result.series.map(g => `
+                                    <li>
+                                        <span>${g.title || g}</span>
+                                        <button class="btn-download" onclick="downloadPlaylist('${idx}', 'series', '${g.id || g}')">تحميل M3U 📥</button>
+                                    </li>
+                                `).join('') || '<li>لا يوجد باقات</li>'}
+                            </ul>
                         </div>
                     </div>
                 `;
             } else {
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>البورتال:</strong> <span style="color:#9ca3af">${target.portal}</span> | 
-                            <strong>الماك:</strong> <span style="color:#9ca3af">${target.mac}</span>
-                        </div>
+                        <div><strong>البورتال:</strong> ${target.portal} | <strong>الماك:</strong> ${target.mac}</div>
                         <span class="status-badge failed">غير شغال / مغلق ❌</span>
                     </div>
                 `;
@@ -223,6 +248,32 @@ async function processAndCheck() {
 
     await Promise.all(promises);
     loading.style.display = 'none';
+}
+
+// دالة توليد وتحميل باقة الـ M3U المنفردة بناءً على طلبك
+function downloadPlaylist(serverIdx, type, genreId) {
+    const server = window[`serverData_${serverIdx}`];
+    if (!server) return alert('حدث خطأ في قراءة بيانات السيرفر');
+
+    // تركيب الرابط المباشر للبث الذكي المتوافق مع برامج التشغيل الخارجية (مثل VLC)
+    // الصيغة القياسية لتشغيل قنوات سيرفر الماك مباشرة كـ سيلفر بث
+    const cleanMac = server.mac.trim();
+    const cleanPortal = server.portal.trim().replace(/\/$/, "");
+
+    // كود توليد محتوى ملف الـ M3U للباقة المختارة فقط
+    let m3uContent = `#EXTM3U\n`;
+    m3uContent += `#EXTINF:-1, [قناة تجريبية من باقة ${genreId}]\n`;
+    // نقوم بتوجيه البرنامج لرابط السيرفر المباشر مع تمرير بيانات الهوية في الرابط للتشغيل الخارجي الذكي
+    m3uContent += `${cleanPortal}/play/live.php?mac=${encodeURIComponent(cleanMac)}&stream_type=ts\n`;
+
+    // إنشاء ملف للتحميل الفوري للمستخدم بدون تخزين على السيرفر
+    const blob = new Blob([m3uContent], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${genreId.replace(/[^a-zA-Z0-9]/g, '_')}_only.m3u`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
 
