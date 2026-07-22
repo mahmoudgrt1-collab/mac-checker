@@ -79,7 +79,7 @@ export default async function handler(req, res) {
             }
         }
 
-        const expiryDate = profileData?.end_date || "غير محدد (مفتوح / Active)";
+        const expiryDate = profileData?.end_date || "N\A ( / Active)";
 
         // جلب تصنيفات الأفلام
         let vodGenres = [];
