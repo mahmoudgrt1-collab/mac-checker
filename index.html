@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الفاحص الاحترافي الشامل لسيرفرات الماك</title>
+    <title>MAC CHECKER BY>> M4HM0UD</title>
     <style>
         :root { --primary: #2563eb; --bg: #0b0f19; --card-bg: #111827; --text: #f9fafb; --border: #1f2937; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -28,13 +28,13 @@
 <body>
 
 <div class="container">
-    <h2>🔍 مستخرج الباقات الذكي من نصوص التليجرام (All-in-One)</h2>
-    <p style="text-align: center; color: #9ca3af;">ارمِ النص المليان رموز ودوشة هنا مباشرة.. الأداة ستستخرج البيانات وتفحصها تلقائياً 👇</p>
+    <h2>🔍 MAC CHK</h2>
+    <p style="text-align: center; color: #9ca3af;">PUT MAC AND DNS ADRESS 👇</p>
     
-    <textarea id="rawInput" placeholder="الصق رسائل البوتات المليئة بالرموز والدوشة هنا..."></textarea>
-    <button onclick="processAndCheck()">ابدأ الفرز الذكي والفحص الجماعي 🚀</button>
+    <textarea id="rawInput" placeholder="P.A.S.T TXT..."></textarea>
+    <button onclick="processAndCheck()">START ROCKET 🚀</button>
 
-    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">جاري التنظيف والاستخراج والفحص البيني السريع...</div>
+    <div id="loading" style="display: none; text-align: center; margin-top: 20px; color: #3b82f6; font-weight: bold;">WAITING ...</div>
     
     <div id="outputContainer"></div>
 </div>
@@ -65,14 +65,14 @@ async function processAndCheck() {
     
     outputContainer.innerHTML = '';
     const targets = smartExtract(rawInput);
-    if (targets.length === 0) return alert('لم يتم العثور على أي سيرفرات في النص!');
+    if (targets.length === 0) return alert('NO THING!');
 
     loading.style.display = 'block';
 
     const promises = targets.map(async (target, idx) => {
         const card = document.createElement('div');
         card.className = 'result-card';
-        card.innerHTML = `<div style="padding:10px;">جاري فحص وتفكيك السيرفر المستخرج...</div>`;
+        card.innerHTML = `<div style="padding:10px;">W W W AITING...</div>`;
         outputContainer.appendChild(card);
 
         try {
@@ -88,29 +88,29 @@ async function processAndCheck() {
 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-                        <div><strong>البورتال المستخرج:</strong> <span style="color:#60a5fa">${target.portal}</span> | <strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></div>
-                        <div><span class="status-badge success">شغال ✅</span> | ينتهي: <b style="color:#ef4444">${result.expiry}</b></div>
+                        <div><strong>PORTAL:</strong> <span style="color:#60a5fa">${target.portal}</span> | <strong>الماك:</strong> <span style="color:#f59e0b">${target.mac}</span></div>
+                        <div><span class="status-badge success">WORKED ✅</span> | EXPIRE: <b style="color:#ef4444">${result.expiry}</b></div>
                     </div>
                     <div class="grid-categories">
                         <div class="category-box">
-                            <h4>📺 البث المباشر (Live Genres)</h4>
+                            <h4>📺 LIVE (Live Genres)</h4>
                             <ul>
-                                ${(result.live && result.live.length) ? result.live.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'itv', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') : '<li>لا يوجد قنوات أو محمية</li>'}
+                                ${(result.live && result.live.length) ? result.live.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'itv', '${g.id}', '${g.title}')">DOWNLOAD 📥</button></li>`).join('') : '<li>لا يوجد قنوات أو محمية</li>'}
                             </ul>
                         </div>
                         <div class="category-box">
-                            <h4>🎬 الأفلام (VOD Categories)</h4>
+                            <h4>🎬 MOVIES (VOD Categories)</h4>
                             <ul>
-                                ${(result.vod && result.vod.length) ? result.vod.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'vod', '${g.id}', '${g.title}')">تحميل الباقة 📥</button></li>`).join('') : '<li>لا يوجد أفلام</li>'}
+                                ${(result.vod && result.vod.length) ? result.vod.map(g => `<li><span>${g.title}</span><button class="btn-download" onclick="downloadGenre('${idx}', 'vod', '${g.id}', '${g.title}')">DOWNLOAD  📥</button></li>`).join('') : '<li>لا يوجد أفلام</li>'}
                             </ul>
                         </div>
                     </div>
                 `;
             } else {
-                card.innerHTML = `<div style="color:#dc2626; padding:10px;">❌ غير شغال أو منتهي: البورتال [${target.portal}] | الماك [${target.mac}]</div>`;
+                card.innerHTML = `<div style="color:#dc2626; padding:10px;">❌ NOT WORKED: PORTAL [${target.portal}] | MAC [${target.mac}]</div>`;
             }
         } catch (err) {
-            card.innerHTML = `<div style="padding:10px;">⚠️ خطأ في الاتصال أثناء فحص هذا السيرفر</div>`;
+            card.innerHTML = `<div style="padding:10px;">⚠️ SERVER ERROR</div>`;
         }
     });
 
@@ -120,11 +120,11 @@ async function processAndCheck() {
 
 async function downloadGenre(serverIdx, type, genreId, genreTitle) {
     const server = window[`server_${serverIdx}`];
-    if (!server) return alert('خطأ في جلب بيانات السيرفر');
+    if (!server) return alert('ERROR');
 
     const btn = event.target;
     const oldText = btn.innerText;
-    btn.innerText = 'جاري السحب...';
+    btn.innerText = 'SCRAPPING...';
     btn.disabled = true;
 
     try {
@@ -147,7 +147,7 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
 
         if (data && data.success && data.channels && data.channels.length > 0) {
             data.channels.forEach(ch => {
-                const name = ch.name || 'قناة غير مسمية';
+                const name = ch.name || 'NO NAME';
                 const id = ch.id || '';
                 const cmd = ch.cmd || '';
 
@@ -165,7 +165,7 @@ async function downloadGenre(serverIdx, type, genreId, genreTitle) {
                 m3uContent += `#EXTINF:-1 tvg-name="${name}" group-title="${genreTitle}",${name}\n${streamUrl}\n`;
             });
         } else {
-            m3uContent += `#EXTINF:-1 tvg-name="${genreTitle} Link" group-title="${genreTitle}",[رابط تشغيل مباشر للباقة: ${genreTitle}]\n`;
+            m3uContent += `#EXTINF:-1 tvg-name="${genreTitle} Link" group-title="${genreTitle}",[DIRECT LINK: ${genreTitle}]\n`;
             if (type === 'vod') {
                 m3uContent += `${cleanPortal}/play/vod.php?mac=${server.mac}&stream_type=mp4&category=${encodeURIComponent(genreId)}\n`;
             } else {
